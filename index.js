@@ -25,7 +25,6 @@ app.get('/image/', function (req, res) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.setHeader('Content-Type', 'application/json');
-    var json = [];
     if (req.query.url == null) {
         var error = true;
         var description = "error url";
@@ -45,11 +44,21 @@ app.get('/image/', function (req, res) {
     };
     rp(options)
         .then(($) => {
-            //console.log($);
+            var json = [];
+            var jsonFinal = [];
+            var altTotal = 0;
+            var altNovide = 0;
             $('img').each(function (i, elem) {
                 var src = $(this).attr('src').trim();
                 var subSrc = $(this).attr('src').trim().substr(0, 4);
-                if (subSrc == "http" || src.indexOf(".com") != -1) {
+
+                altTotal ++;
+                if($(this).attr('alt') == null){
+                   
+                } else if($(this).attr('alt') != ""){
+                    altNovide++;
+                }
+               /* if (subSrc == "http" || src.indexOf(".com") != -1) {
                     var alt = $(this).attr('alt');
                     var element = { source: src, alt: alt };
                     json.push(element);
@@ -67,9 +76,13 @@ app.get('/image/', function (req, res) {
                 }else {
                     console.log(subSrc);
                     console.log($(this).attr('src'));
-                }
+                }*/
             });
-            res.send(json);
+
+            var kpi = altNovide / altTotal;
+            var element = { KPI_ALT: kpi/*, IMAGE: json*/ };
+            //jsonFinal.push(element);
+            res.send(element);
         })
         .catch((err) => {
             var error = true;
@@ -78,8 +91,6 @@ app.get('/image/', function (req, res) {
             json.push(element);
             return res.send(json);
         });
-
-
 });
 
 app.get('/title/', function (req, res) {
