@@ -35,6 +35,13 @@ app.get('/image/', function (req, res) {
     else
         adr = req.query.url;
 
+
+    var json = [];
+    var jsonFinal = [];
+    var altword = [];
+    var altwordSup = [];
+    var altTotal = 0;
+    var altNovide = 0;
     var q = url.parse(adr, true);
     const options = {
         uri: adr,
@@ -44,51 +51,59 @@ app.get('/image/', function (req, res) {
     };
     rp(options)
         .then(($) => {
-            var json = [];
-            var jsonFinal = [];
-            var altTotal = 0;
-            var altNovide = 0;
+
             $('img').each(function (i, elem) {
                 var src = $(this).attr('src').trim();
                 var subSrc = $(this).attr('src').trim().substr(0, 4);
 
-                altTotal ++;
-                if($(this).attr('alt') == null){
-                   
-                } else if($(this).attr('alt') != ""){
+                altTotal++;
+                if ($(this).attr('alt') == null) {
+
+                } else if ($(this).attr('alt') != "") {
+                    var test = $(this).attr('alt').trim();
+                    var arrayOfStrings = test.split(" ");
+                    for (var i = 0; i < arrayOfStrings.length; i++) {
+                        if (arrayOfStrings[i].length > 3) {
+                            altword.push(arrayOfStrings[i]);
+                        } else {
+                            altwordSup.push(arrayOfStrings[i]);
+                        }
+                    }
                     altNovide++;
                 }
-               /* if (subSrc == "http" || src.indexOf(".com") != -1) {
-                    var alt = $(this).attr('alt');
-                    var element = { source: src, alt: alt };
-                    json.push(element);
-                } else if (subSrc == "data") {
-                    var b64 = true;
-                    var alt = $(this).attr('alt');
-                    var element = { base64: b64, source: src, alt: alt };
-                    json.push(element);
-                } else if(src.indexOf(".jpg") != -1 || src.indexOf(".png") != -1){
-                    q.host;
-                    src = q.host + $(this).attr('src').trim();
-                    var alt = $(this).attr('alt');
-                    var element = { source: src, alt: alt };
-                    json.push(element);
-                }else {
-                    console.log(subSrc);
-                    console.log($(this).attr('src'));
-                }*/
+                /* if (subSrc == "http" || src.indexOf(".com") != -1) {
+                     var alt = $(this).attr('alt');
+                     var element = { source: src, alt: alt };
+                     json.push(element);
+                 } else if (subSrc == "data") {
+                     var b64 = true;
+                     var alt = $(this).attr('alt');
+                     var element = { base64: b64, source: src, alt: alt };
+                     json.push(element);
+                 } else if(src.indexOf(".jpg") != -1 || src.indexOf(".png") != -1){
+                     q.host;
+                     src = q.host + $(this).attr('src').trim();
+                     var alt = $(this).attr('alt');
+                     var element = { source: src, alt: alt };
+                     json.push(element);
+                 }else {
+                     console.log(subSrc);
+                     console.log($(this).attr('src'));
+                 }*/
             });
 
             var kpi = altNovide / altTotal;
-            var element = { KPI_ALT: kpi/*, IMAGE: json*/ };
+            var element = { KPI_ALT: kpi/*, IMAGE: json*/, WORD: altword, WORDSUP: altwordSup };
             //jsonFinal.push(element);
+            console.log(q.host);
             res.send(element);
         })
         .catch((err) => {
             var error = true;
-            var description = "error url";
+            var description = "error url  >> start with https://";
             var element = { error: error, description: description };
             json.push(element);
+            console.log(q.host);
             return res.send(json);
         });
 });
@@ -126,13 +141,15 @@ app.get('/title/', function (req, res) {
                 var element = { source: src, title: title };
                 json.push(element);
             });
+            console.log(q.host);
             res.send(json);
         })
         .catch((err) => {
             var error = true;
-            var description = "error url";
+            var description = "error url >> start with https://";
             var element = { error: error, description: description };
             json.push(element);
+            console.log(q.host);
             return res.send(json);
         });
 
